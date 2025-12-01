@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -83,14 +84,10 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
         <div class="container">
-            <a class="navbar-brand" href="index.html">
+            <a class="navbar-brand" href="index.php">
                 📚 Library System
             </a>
-            <div class="ms-auto">
-                <a href="index.html" class="btn btn-outline-primary">
-                    Back to Login
-                </a>
-            </div>
+
         </div>
     </nav>
 
@@ -102,27 +99,27 @@
             </div>
             <div class="card-body p-5">
               
-                <form id="memberRegistrationForm" novalidate>
+                <form id="memberRegistrationForm" action = "register.php" method ="post">
                     <!-- Personal Information Section -->
                     <div class="mb-4">
                         <h5 class="text-primary mb-3">👤 Personal Information</h5>
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="firstName" class="form-label required-field">First Name</label>
-                                <input type="text" class="form-control form-control-lg" id="firstName" 
+                                <input type="text" class="form-control form-control-lg" name="fname" 
                                        placeholder="Enter first name" required>
                                 <div class="invalid-feedback">Please enter your first name.</div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="lastName" class="form-label required-field">Last Name</label>
-                                <input type="text" class="form-control form-control-lg" id="lastName" 
+                                <input type="text" class="form-control form-control-lg" name="lname" 
                                        placeholder="Enter last name" required>
                                 <div class="invalid-feedback">Please enter your last name.</div>
                             </div>
                         </div>
                         <div class="mb-3">
                             <label for="dob" class="form-label required-field">Date of Birth</label>
-                            <input type="date" class="form-control form-control-lg" id="dob" required>
+                            <input type="date" class="form-control form-control-lg" name="dob" required>
                             <div class="invalid-feedback">Please enter your date of birth.</div>
                         </div>
                     </div>
@@ -134,22 +131,31 @@
                         <h5 class="text-primary mb-3">📧 Contact Information</h5>
                         <div class="mb-3">
                             <label for="email" class="form-label required-field">Email Address</label>
-                            <input type="email" class="form-control form-control-lg" id="email" 
+                            <input type="email" class="form-control form-control-lg" name="email" 
                                    placeholder="your.email@example.com" required>
                             <div class="invalid-feedback">Please enter a valid email address.</div>
                             <small class="text-muted">This will be used for your login</small>
                         </div>
                         <div class="mb-3">
                             <label for="phone" class="form-label required-field">Phone Number</label>
-                            <input type="tel" class="form-control form-control-lg" id="phone" 
+                            <input type="tel" class="form-control form-control-lg" name="phone" 
                                    placeholder="(123) 456-7890" required>
                             <div class="invalid-feedback">Please enter a valid phone number.</div>
                         </div>
                         <div class="mb-3">
                             <label for="address" class="form-label required-field">Address</label>
-                            <textarea class="form-control form-control-lg" id="address" rows="3" 
+                            <textarea class="form-control form-control-lg" name="address" rows="3" 
                                       placeholder="Enter your full address" required></textarea>
                             <div class="invalid-feedback">Please enter your address.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="role" class="form-label required-field">Role</label>
+                            <select class="form-select form-select-lg" id="role" name="role" required>
+                                <option value="">Select role</option>
+                                <option value="member">Member</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                            <div class="invalid-feedback">Please select a role.</div>
                         </div>
                     </div>
 
@@ -159,32 +165,24 @@
                     <div class="mb-4">
                         <h5 class="text-primary mb-3">🔐 Account Setup</h5>
                         <div class="row">
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-12 mb-3">
                                 <label for="password" class="form-label required-field">Password</label>
-                                <input type="password" class="form-control form-control-lg" id="password" 
+                                <input type="password" class="form-control form-control-lg" name="password" 
                                        placeholder="Create a password" required>
-                                <div class="invalid-feedback">Password must be at least 8 characters.</div>
-                                <small class="text-muted">Minimum 8 characters</small>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="confirmPassword" class="form-label required-field">Confirm Password</label>
-                                <input type="password" class="form-control form-control-lg" id="confirmPassword" 
-                                       placeholder="Re-enter password" required>
-                                <div class="invalid-feedback">Passwords do not match.</div>
-                            </div>
-                        </div>
+
                     </div>
 
 
 
                     <!-- Submit Button -->
-                    <button type="submit" class="btn btn-primary w-100 mb-3">
+                    <button type="submit" name = "register" class="btn btn-primary w-100 mb-3">
                         Create Account
                     </button>
 
                     <div class="text-center">
                         <p class="mb-0">Already have an account? 
-                            <a href="index.html" class="text-decoration-none fw-semibold">Sign in here</a>
+                            <a href="index.php" class="text-decoration-none fw-semibold">Sign in here</a>
                         </p>
                     </div>
                 </form>

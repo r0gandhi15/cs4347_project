@@ -1,3 +1,73 @@
+<?php
+require_once 'config.php';
+
+// Ensure only admin can access
+if (empty($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    header("Location: index.php");
+    exit();
+}
+
+/**
+ * BOOKS: join Book + Publisher + Author
+ */
+$booksSql = "
+    SELECT 
+        b.book_id,
+        b.title,
+        b.isbn,
+        b.genre,
+        b.publication_date,
+        p.p_name AS publisher,
+        GROUP_CONCAT(a.a_name SEPARATOR ', ') AS authors
+    FROM Book b
+    JOIN Publisher p ON b.p_name = p.p_name
+    LEFT JOIN Author a ON a.book_id = b.book_id
+    GROUP BY b.book_id
+    ORDER BY b.title
+";
+$booksResult = mysqli_query($conn, $booksSql);
+
+
+/**
+ * MEMBERS (Users): from Member table
+ */
+$membersSql = "
+    SELECT member_id, fname, lname, email, phone, role, dob
+    FROM Member
+    ORDER BY member_id
+";
+$membersResult = mysqli_query($conn, $membersSql);
+
+/**
+ * LOANS: join Loan + Member + LoanItem + Book
+ */
+// LOAN MANAGEMENT – list loans with member + books
+$loansSql = "
+    SELECT
+        l.loan_id,
+        l.date_out,
+        l.due_date,
+        l.return_date,
+        CONCAT(m.fname, ' ', m.lname) AS member_name,
+        GROUP_CONCAT(DISTINCT b.title ORDER BY b.title SEPARATOR ', ') AS books
+    FROM Loan l
+    JOIN Member m     ON l.member_id = m.member_id
+    LEFT JOIN LoanItem li ON l.loan_id = li.loan_id
+    LEFT JOIN Book b      ON li.book_id = b.book_id
+    GROUP BY
+        l.loan_id,
+        l.date_out,
+        l.due_date,
+        l.return_date,
+        m.fname,
+        m.lname
+    ORDER BY l.date_out DESC
+";
+$loansResult = mysqli_query($conn, $loansSql);
+
+$loansResult = mysqli_query($conn, $loansSql);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -54,7 +124,7 @@
                         <span class="nav-link">👤 Staff: John Librarian</span>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="index.html">Logout</a>
+                        <a class="nav-link" href="index.php">Logout</a>
                     </li>
                 </ul>
             </div>
@@ -83,7 +153,7 @@
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button">
-                    👥 User Management
+                    👥 Member Management
                 </button>
             </li>
         </ul>
@@ -172,7 +242,7 @@
                                 </div>
 
                             </div>
-                            <button type="submit" class="btn btn-success">Save Book</button>
+                            <button type="submit" class="btn btn-success">Add Book</button>
                             <button type="reset" class="btn btn-secondary">Clear</button>
                         </form>
                     </div>
@@ -186,37 +256,36 @@
                         <table class="table table-hover">
                             <thead>
                                 <tr>
+                                    <th>ID</th>
                                     <th>ISBN</th>
                                     <th>Title</th>
                                     <th>Author</th>
                                     <th>Genre</th>
-                                    <th>Copies</th>
-                                    <th>Actions</th>
+                                    <th>Publisher</th>
+                                    <th>Publication Date</th>
                                 </tr>
                             </thead>
                             <tbody>
+                            <?php if (!$booksResult || mysqli_num_rows($booksResult) === 0): ?>
                                 <tr>
-                                    <td>978-0-123456-78-9</td>
-                                    <td>The Great Adventure</td>
-                                    <td>John Author</td>
-                                    <td>Fiction</td>
-                                    <td>3</td>
-                                    <td>
+                                    <td colspan="6" class="text-center text-muted">No books found.</td>
+                                </tr>
+                            <?php else: ?>
+                                <?php while ($b = mysqli_fetch_assoc($booksResult)): ?>
+                                    <tr>
+                                        <td><?= htmlspecialchars($b['book_id']) ?></td>
+                                        <td><?= htmlspecialchars($b['isbn']) ?></td>
+                                        <td><?= htmlspecialchars($b['title']) ?></td>
+                                        <td><?= htmlspecialchars($b['authors'] ?: 'N/A') ?></td>
+                                        <td><?= htmlspecialchars($b['genre'] ?: 'N/A') ?></td>
+                                        <td><?= htmlspecialchars($b['publisher']) ?></td>
+                                        <td><?= htmlspecialchars($b['publication_date']) ?></td>
+                                    </tr>
+                                <?php endwhile; ?>
+                            <?php endif; ?>    
                                         <button class="btn btn-sm btn-warning">Edit</button>
                                         <button class="btn btn-sm btn-danger">Delete</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>978-0-987654-32-1</td>
-                                    <td>Mystery Novel</td>
-                                    <td>Jane Mystery</td>
-                                    <td>Mystery</td>
-                                    <td>2</td>
-                                    <td>
-                                        <button class="btn btn-sm btn-warning">Edit</button>
-                                        <button class="btn btn-sm btn-danger">Delete</button>
-                                    </td>
-                                </tr>
+                            
                             </tbody>
                         </table>
                     </div>
@@ -275,31 +344,46 @@
                                             <th>Loan ID</th>
                                             <th>Member</th>
                                             <th>Book</th>
+                                            <th>Loan Date</th>
                                             <th>Due Date</th>
+                                            <th>Return Date</th>
+                                            <th>Status</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td>L001</td>
-                                            <td>John Doe</td>
-                                            <td>The Great Adventure</td>
-                                            <td>Nov 20, 2024</td>
-                                            <td>
-                                                <button class="btn btn-sm btn-primary">Return</button>
-                                                <button class="btn btn-sm btn-info">Renew</button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>L002</td>
-                                            <td>Jane Smith</td>
-                                            <td>Mystery Novel</td>
-                                            <td>Nov 25, 2024</td>
-                                            <td>
-                                                <button class="btn btn-sm btn-primary">Return</button>
-                                                <button class="btn btn-sm btn-info">Renew</button>
-                                            </td>
-                                        </tr>
+                                        <?php if ($loansResult && mysqli_num_rows($loansResult) > 0): ?>
+                                            <?php while ($loan = mysqli_fetch_assoc($loansResult)): ?>
+                                                <?php
+                                                    $isReturned  = !is_null($loan['return_date']);
+                                                    $statusLabel = $isReturned ? 'Returned' : 'On Loan';
+                                                    $statusClass = $isReturned ? 'success'  : 'warning';
+                                                ?>
+                                                <tr>
+                                                <td><?= htmlspecialchars($loan['loan_id']) ?></td>
+                                                <td><?= htmlspecialchars($loan['member_name']) ?></td>
+                                                <td><?= htmlspecialchars($loan['books'] ?: 'N/A') ?></td>
+                                                <td><?= htmlspecialchars($loan['date_out']) ?></td>
+                                                <td><?= htmlspecialchars($loan['due_date']) ?></td>
+                                                <td><?= htmlspecialchars($loan['return_date'] ?? '-') ?></td>
+                                                    <td>
+                                                        <span class="badge bg-<?php echo $statusClass; ?>">
+                                                            <?php echo $statusLabel; ?>
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-outline-success">Mark Returned</button>
+                                                        <button class="btn btn-sm btn-outline-danger">Mark Lost</button>
+                                                    </td>
+                                                </tr>
+                                            <?php endwhile; ?>
+                                        <?php else: ?>
+                                            <tr>
+                                                <td colspan="6" class="text-center text-muted">
+                                                    No loans found.
+                                                </td>
+                                            </tr>
+                                        <?php endif; ?>
                                     </tbody>
                                 </table>
                             </div>
@@ -310,7 +394,7 @@
                 </div>
             </div>
 
-            <!-- TAB 4: USER MANAGEMENT -->
+            <!-- TAB 4: MEMBER MANAGEMENT -->
             <div class="tab-pane fade" id="users">
                 <div class="card mb-4">
                     <div class="card-header bg-success text-white">
@@ -334,7 +418,6 @@
                                     <select class="form-select" required>
                                         <option value="">Select Role</option>
                                         <option>Member</option>
-                                        <option>Librarian</option>
                                         <option>Admin</option>
                                     </select>
                                 </div>
@@ -370,31 +453,39 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>#M12345</td>
-                                    <td>John Doe</td>
-                                    <td>john.doe@email.com</td>
-                                    <td><span class="badge bg-info">Member</span></td>
-                                    <td><span class="badge bg-success">Active</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-warning">Edit</button>
-                                        <button class="btn btn-sm btn-secondary">Reset Pass</button>
-                                        <button class="btn btn-sm btn-danger">Deactivate</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>#S001</td>
-                                    <td>Jane Smith</td>
-                                    <td>jane.smith@library.com</td>
-                                    <td><span class="badge bg-primary">Librarian</span></td>
-                                    <td><span class="badge bg-success">Active</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-warning">Edit</button>
-                                        <button class="btn btn-sm btn-secondary">Reset Pass</button>
-                                        <button class="btn btn-sm btn-danger">Deactivate</button>
-                                    </td>
-                                </tr>
+                                <?php if ($membersResult && mysqli_num_rows($membersResult) > 0): ?>
+                                    <?php while ($member = mysqli_fetch_assoc($membersResult)): ?>
+                                        <tr>
+                                            <td><?php echo htmlspecialchars($member['member_id']); ?></td>
+                                            <td><?php echo htmlspecialchars($member['fname'] . ' ' . $member['lname']); ?></td>
+                                            <td><?php echo htmlspecialchars($member['email']); ?></td>
+                                            <td>
+                                                <span class="badge bg-<?php
+                                                    echo $member['role'] === 'admin'
+                                                        ? 'danger'
+                                                        : ($member['role'] === 'staff' ? 'primary' : 'secondary');
+                                                ?>">
+                                                    <?php echo ucfirst(htmlspecialchars($member['role'])); ?>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-success">Active</span>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-sm btn-warning">Edit</button>
+                                                <button class="btn btn-sm btn-danger">Delete</button>
+                                            </td>
+                                        </tr>
+                                    <?php endwhile; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted">
+                                            No members found.
+                                        </td>
+                                    </tr>
+                                <?php endif; ?>
                             </tbody>
+
                         </table>
                     </div>
                 </div>

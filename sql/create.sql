@@ -6,14 +6,16 @@ DROP TABLE IF EXISTS Publisher;
 DROP TABLE IF EXISTS Member;
 -- Member Table
 CREATE TABLE Member (
-card_no INT PRIMARY KEY,
+member_id INT PRIMARY KEY AUTO_INCREMENT,
 fname VARCHAR(40) NOT NULL,
 lname VARCHAR(40) NOT NULL,
 dob DATE,
 address VARCHAR(100),
 phone VARCHAR(20) UNIQUE NOT NULL,
-email VARCHAR(50) UNIQUE NOT NULL
-);
+email VARCHAR(50) UNIQUE NOT NULL,
+password_hash VARCHAR(255) NOT NULL,
+role VARCHAR(20)
+) AUTO_INCREMENT = 105;
 -- Publisher Table
 CREATE TABLE Publisher (
 p_name VARCHAR(60) PRIMARY KEY,
@@ -24,6 +26,7 @@ phone VARCHAR(20)
 CREATE TABLE Book (
 book_id INT PRIMARY KEY,
 title VARCHAR(80) NOT NULL,
+isbn  VARCHAR(20) NOT NULL UNIQUE,
 genre VARCHAR(40),
 publication_date DATE,
 p_name VARCHAR(60) NOT NULL,
@@ -33,17 +36,18 @@ REFERENCES Publisher(p_name)
 ON UPDATE CASCADE
 ON DELETE RESTRICT
 );
+
 -- Loan Table
 CREATE TABLE Loan (
 loan_id INT PRIMARY KEY,
-card_no INT NOT NULL,
+member_id INT NOT NULL,
 date_out DATE NOT NULL,
 due_date DATE NOT NULL,
 return_date DATE,
 fee DECIMAL(8,2) DEFAULT 0 CHECK (fee >= 0),
 CONSTRAINT fk_loan_member
-FOREIGN KEY (card_no)
-REFERENCES Member(card_no)
+FOREIGN KEY (member_id)
+REFERENCES Member(member_id)
 ON UPDATE CASCADE
 ON DELETE RESTRICT
 );

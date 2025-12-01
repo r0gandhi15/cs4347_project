@@ -1,3 +1,11 @@
+<?php
+session_start();
+$errors = ['login' => $_SESSION['login_error'] ?? ''];
+session_unset();
+function showError($error){
+    return !empty($error) ? "<p class='error-message' color = 'red'>$error</p>" : '';
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -59,33 +67,34 @@
                     <div class="card border-0">
                         <div class="card-body p-5">
                             <h2 class="text-center mb-4 fw-bold">Sign In</h2>
+                            <?= showError($errors['login']); ?>
                             <p class="text-center text-muted mb-4">Enter your credentials to access the system</p>
                             
-                            <form id="loginForm" novalidate>
+                            <form id="loginForm" action = "login.php" method ="post" novalidate>
                                 
 
                                 <div class="mb-4">
                                     <label for="email" class="form-label fw-semibold">Email Address</label>
-                                    <input type="email" class="form-control form-control-lg" id="email" 
+                                    <input type="email" class="form-control form-control-lg" name="email" 
                                            placeholder="Enter your email" required>
                                     <div class="invalid-feedback">Please enter a valid email address.</div>
                                 </div>
 
                                 <div class="mb-4">
                                     <label for="password" class="form-label fw-semibold">Password</label>
-                                    <input type="password" class="form-control form-control-lg" id="password" 
+                                    <input type="password" class="form-control form-control-lg" name="password" 
                                            placeholder="Enter your password" required>
                                     <div class="invalid-feedback">Please enter your password.</div>
                                 </div>
 
 
 
-                                <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
+                                <button type="submit" name = "login" class="btn btn-primary btn-lg w-100 mb-3">
                                     Sign In
                                 </button>
 
                                 <div class="text-center">
-                                    <a href="member_registration.html" class="text-decoration-none">
+                                    <a href="member_registration.php" class="text-decoration-none">
                                         New member? Register here
                                     </a>
                                 </div>
