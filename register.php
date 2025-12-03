@@ -21,7 +21,11 @@ if (isset($_POST['register'])) {
         VALUES ('$fname', '$lname', '$dob', '$address', '$phone', '$email', '$password', '$role')";
 
 
-        $_SESSION['register_success'] = 'Registration successful!';
+        if ($conn->query($sql) === TRUE) {
+            $_SESSION['register_success'] = 'Registration successful!';
+        } else {
+            $_SESSION['register_error'] = 'Error: ' . $conn->error;
+        }
     }
     header("Location: index.php");
     exit();

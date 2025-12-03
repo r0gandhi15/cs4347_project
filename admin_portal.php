@@ -256,13 +256,15 @@ $loansResult = mysqli_query($conn, $loansSql);
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
+                                    
                                     <th>ISBN</th>
                                     <th>Title</th>
                                     <th>Author</th>
                                     <th>Genre</th>
                                     <th>Publisher</th>
                                     <th>Publication Date</th>
+                                    <th>Actions</th>
+
                                 </tr>
                             </thead>
                             <tbody>
@@ -273,18 +275,23 @@ $loansResult = mysqli_query($conn, $loansSql);
                             <?php else: ?>
                                 <?php while ($b = mysqli_fetch_assoc($booksResult)): ?>
                                     <tr>
-                                        <td><?= htmlspecialchars($b['book_id']) ?></td>
+                                        
                                         <td><?= htmlspecialchars($b['isbn']) ?></td>
                                         <td><?= htmlspecialchars($b['title']) ?></td>
                                         <td><?= htmlspecialchars($b['authors'] ?: 'N/A') ?></td>
                                         <td><?= htmlspecialchars($b['genre'] ?: 'N/A') ?></td>
                                         <td><?= htmlspecialchars($b['publisher']) ?></td>
                                         <td><?= htmlspecialchars($b['publication_date']) ?></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-warning">Edit</button>
+                                            <button class="btn btn-sm btn-danger">Delete</button>
+                                        </td>
+                                        
                                     </tr>
+                                        
                                 <?php endwhile; ?>
                             <?php endif; ?>    
-                                        <button class="btn btn-sm btn-warning">Edit</button>
-                                        <button class="btn btn-sm btn-danger">Delete</button>
+                                        
                             
                             </tbody>
                         </table>
@@ -341,7 +348,7 @@ $loansResult = mysqli_query($conn, $loansSql);
                                 <table class="table table-hover">
                                     <thead>
                                         <tr>
-                                            <th>Loan ID</th>
+                                            
                                             <th>Member</th>
                                             <th>Book</th>
                                             <th>Loan Date</th>
@@ -360,7 +367,7 @@ $loansResult = mysqli_query($conn, $loansSql);
                                                     $statusClass = $isReturned ? 'success'  : 'warning';
                                                 ?>
                                                 <tr>
-                                                <td><?= htmlspecialchars($loan['loan_id']) ?></td>
+                                                
                                                 <td><?= htmlspecialchars($loan['member_name']) ?></td>
                                                 <td><?= htmlspecialchars($loan['books'] ?: 'N/A') ?></td>
                                                 <td><?= htmlspecialchars($loan['date_out']) ?></td>
@@ -398,16 +405,20 @@ $loansResult = mysqli_query($conn, $loansSql);
             <div class="tab-pane fade" id="users">
                 <div class="card mb-4">
                     <div class="card-header bg-success text-white">
-                        <h5 class="mb-0">Add / Edit User</h5>
+                        <h5 class="mb-0">Add / Edit Member</h5>
                     </div>
                     <div class="card-body">
                         <form id="userForm">
                             <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Full Name *</label>
+                                <div class="col-md-4 mb-4">
+                                    <label class="form-label">First Name *</label>
                                     <input type="text" class="form-control" required>
                                 </div>
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-4 mb-4">
+                                    <label class="form-label">Last Name *</label>
+                                    <input type="text" class="form-control" required>
+                                </div>
+                                <div class="col-md-4 mb-4">
                                     <label class="form-label">Email *</label>
                                     <input type="email" class="form-control" required>
                                 </div>
@@ -438,7 +449,7 @@ $loansResult = mysqli_query($conn, $loansSql);
 
                 <div class="card">
                     <div class="card-header bg-success text-white">
-                        <h5 class="mb-0">User List</h5>
+                        <h5 class="mb-0">Member List</h5>
                     </div>
                     <div class="card-body">
                         <table class="table table-hover">

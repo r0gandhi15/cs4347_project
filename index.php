@@ -67,7 +67,7 @@ function showError($error){
                     <div class="card border-0">
                         <div class="card-body p-5">
                             <h2 class="text-center mb-4 fw-bold">Sign In</h2>
-                            <?= showError($errors['login']); ?>
+                            <?= showError($errors['login']); ?> 
                             <p class="text-center text-muted mb-4">Enter your credentials to access the system</p>
                             
                             <form id="loginForm" action = "login.php" method ="post" novalidate>
