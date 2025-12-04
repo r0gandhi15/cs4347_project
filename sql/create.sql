@@ -30,6 +30,7 @@ isbn  VARCHAR(20) NOT NULL UNIQUE,
 genre VARCHAR(40),
 publication_date DATE,
 p_name VARCHAR(60) NOT NULL,
+status ENUM('AVAILABLE', 'ON_LOAN', 'LOST') NOT NULL DEFAULT 'AVAILABLE',
 CONSTRAINT fk_book_publisher
 FOREIGN KEY (p_name)
 REFERENCES Publisher(p_name)

@@ -7,7 +7,8 @@ LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/Book.csv'
 INTO TABLE Book
 FIELDS TERMINATED BY ',' ENCLOSED BY '"'
 LINES TERMINATED BY '\r\n'
-IGNORE 1 ROWS;
+IGNORE 1 ROWS
+(book_id,title, isbn, genre, publication_date, p_name);
 LOAD DATA  INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/Author.csv'
 INTO TABLE Author
 FIELDS TERMINATED BY ',' ENCLOSED BY '"'
